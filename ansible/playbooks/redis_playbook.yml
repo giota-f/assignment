@@ -1,0 +1,13 @@
+---
+- hosts: redis
+  sudo: yes
+  connection: local 
+  tasks:
+
+    - name: install python packages
+      action: apt pkg={{item}} state=installed
+      with_items:
+        - redis-server
+
+    - name: init redis
+      shell: "systemctl enable redis-server.service"

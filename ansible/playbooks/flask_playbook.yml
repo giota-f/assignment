@@ -1,0 +1,60 @@
+---
+- hosts: flask
+  sudo: yes
+  connection: local 
+  tasks:
+    - name: Updates apt cache
+      action: apt update_cache=true
+    
+    - name: Add key for jonathonf PPA
+      apt_key:
+        keyserver: keyserver.ubuntu.com
+        id: 4AB0F789CBA31744CC7DA76A8CF63AD3F06FC659
+        state: present
+
+    - name: Add jonathonf PPA
+      apt_repository:
+        repo: deb http://ppa.launchpad.net/jonathonf/python-3.6/ubuntu xenial main
+        state: present
+
+    - name: Install Python 3.6
+      apt:
+        name: "{{ item }}"
+        update_cache: yes
+        state: installed
+      with_items:
+        - python3.6
+      become: yes
+
+    - name: Install packages
+      action: apt pkg={{item}} state=installed update_cache=yes
+      with_items:
+        - python3.6-venv
+        - python3.6-dev 
+        - build-essential 
+        - libssl-dev 
+        - libffi-dev 
+        - python3-setuptools
+      become: yes
+        
+    - name: install pip3.6
+      shell: "curl https://bootstrap.pypa.io/get-pip.py | sudo -H python3.6"
+    
+    - pip:
+         requirements: /vagrant/flask/requirements.txt
+         executable: pip3.6   
+     
+    - name: mkdir for app logs
+      shell: "mkdir -p /opt/flask/log "
+
+    - name: initialize db
+      shell: "python3.6 /vagrant/flask/initdb.py"
+    
+    - name: start flask
+      shell: "python3.6 /vagrant/flask/app.py > /opt/flask/log/application.log 2>&1 &"
+      register: log
+
+    - debug: msg="{{ log.stdout }}"
+ 
+
+    

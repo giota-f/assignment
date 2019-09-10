@@ -1,0 +1,17 @@
+1. Assume you are notified about a malfunction in our production system (the api is
+unreachable). Describe your course of action.
+
+As a first step we could ping the server running the api service in order to make sure that the server is up and running. In case we for example we are working in a cloud provider we can check the if the status of the virtual machine is running because the issue might be caused by a network outage. If ping works fine it would be a good approach to check the firewall configuration and if allows us access. A quick way would be to login to the server and try to access service locally. If we can reach the service like that it is probably related with your firewall setting. After that we could ssh to the server and check is the service is running. For example in a dockerized environment we could check the containers running or the containers that exited. If the container is running we can check the logs. If we are working on kubernetes we can see the events of the cluster and also perform a healthcheck.
+Again in case of cloud environment we could check security group rules and if the port that our service is running is open. Also a basic check would be to check if the ip and port is correct(you never know)
+
+2. A bug occurred in one of our production systems due to a different library used from that in
+our development environment. What will you suggest as a measure for this to never happen
+again.
+
+The approach to resolve mismatches or depedency issues of libraries would to clearly define packages/libraries
+both in development and production environment. For example for python we could define a requirments.txt file defining 
+clearly the python packages with their version. Also using python setuptools we can package our python code in a way that 
+when installed it autoresolves depedencies. For Linux packages, a good approach would be to dockerize your applications
+in order to have a packaged up an application with all of the parts it needs, such as libraries and other dependencies,
+and ship it all out as one package. A versioning scheme can also solve many issues regarding different library version in 
+production and in development servers.

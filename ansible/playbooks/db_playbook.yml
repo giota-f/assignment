@@ -1,0 +1,48 @@
+---
+
+- name: Install MySQL
+  hosts: db
+  sudo: yes
+  connection: local 
+  tasks:
+    - name: Install MySQL
+      action: apt pkg=mysql-server state=installed
+    - name: Add Python MySQL DB
+      action: apt pkg=python-mysqldb state=installed
+
+- name: Configure MySQL
+  hosts: db
+  sudo: yes
+  connection: local
+  tasks:
+    - name: Configure my.cnf
+      copy: src=./files/.my.cnf
+            dest=/etc/mysql/my.cnf
+            owner=root
+            group=root
+            mode=0640
+      notify:
+        - restart mysql
+    
+    - name: Add mysql-user
+      mysql_user: name=root
+                  password=rootdatabase
+                  priv=*.*:ALL
+                  state=present
+      notify:
+        - start mysql
+
+  handlers:
+    - name: start mysql
+      service: name=mysql
+               enabled=yes
+               state=started
+    - name: restart mysql
+      service: name=mysql
+               enabled=yes
+               state=restarted
+    
+
+    
+
+      
